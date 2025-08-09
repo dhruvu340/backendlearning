@@ -1,20 +1,52 @@
 const express = require("express");
 const app = express();
 const port = 3000;
-const fs=require("fs")
+const fs=require("fs");
+const mongoose=require("mongoose");
+const createLog=require("./middleware")
 
+mongoose.connect("mongodb+srv://dhruvu3400:dhruvlagareh@cluster0.g7aavad.mongodb.net/").then(()=>{
+  console.log("database connected");
+  
+}).catch((err)=>{console.log(err);
+})
+
+
+const userschema=new mongoose.Schema({
+  name:String,
+  email:String,
+  tags:[String],
+  isactive:Boolean,
+  createdat:{type:Date,default: Date.now},
+})
+
+// Date.now()->create at instance whether Date.now is created at model creation
+
+const user =mongoose.model("Users",userschema);
+
+
+async function runqueries() {
+  try {
+    const newuser1=new user({ name:"String",
+  email:"String",
+  tags:["1","2"],
+  isactive:true,})
+ await newuser1.save();
+    
+  } catch (err) {
+    console.log(err);
+    
+  } finally{
+    await mongoose.connection.close();
+  }
+}
+
+runqueries();
 const users = require("./MOCK_DATA.json");
 // middlewares
-const createLog=(req,res,next)=>{
-  
-  fs.appendFile("log.txt",`\n${req.method} at ${new Date().toISOString()}`,(err,data)=>{
-    if(!err){
-      next();
-    }
-  })
-}
+
 app.use(express.urlencoded({extended:false}));
-app.use(createLog)
+
 app.get("/user", (req, res) => {
   const html = `<ul>
   ${users.map((user, index) => `<li>${user.first_name}</li>`).join(" ")}
@@ -84,6 +116,20 @@ app.get("/api/user/:id", (req, res) => {
 
 // app.route("/api/user").get(()=>{}).put(()=>{}).post(()=>{})  => prefered
 
+
+
+
+
+const route=express.Router();
+route.use(createLog);
+
+route.get("/purchase",(req,res)=>{
+
+  res.send("<h1>inside middle ware</h1>");
+
+})
+
+app.use('/',route);
 
 app.listen(port, () => {
   console.log(`listeing on port ${port}`);
