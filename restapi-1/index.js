@@ -4,13 +4,11 @@ const port = 3000;
 const fs=require("fs");
 const mongoose=require("mongoose");
 const createLog=require("./middleware")
-
-mongoose.connect("mongodb+srv://dhruvu3400:dhruvlagareh@cluster0.g7aavad.mongodb.net/").then(()=>{
-  console.log("database connected");
-  
-}).catch((err)=>{console.log(err);
-})
-
+const dotenv=require('dotenv');
+dotenv.config();
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.error(err));
 
 const userschema=new mongoose.Schema({
   name:String,
